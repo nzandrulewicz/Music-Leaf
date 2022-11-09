@@ -1,0 +1,19 @@
+#main__container {
+    width: 100%;
+    max-width: 30%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#img__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#welcome__saying {
+  font-weight: 200;
+  font-size: 2rem;
+}
