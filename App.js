@@ -14,17 +14,18 @@ import {
 
 var scopes = ["user-top-read", "user-read-recently-played"];
 var RPS = {};
+var userID;
 
 function App() {
-  const CLIENT_ID = "03df3b9ad5094f7ba2904002d7c94924";
-  const REDIRECT_URI = "http://localhost:3000/";
+  const CLIENT_ID = "716cc26765604e6c98f418c9e9ba23c3";
+  const REDIRECT_URI = "https://musicleaf.herokuapp.com/callback";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
 
   const [token, setToken] = useState("");
   const [currentUsersProfile, setCurrentUsersProfile] = useState(null);
   const [recommendedSongs, setRecommendedSongs] = useState([]);
-
+  
   var recentlyPlayedSong = null;
 
   // rps = recently played song
@@ -67,6 +68,58 @@ function App() {
     fetchCurrentUsersProfile();
   }, []);
 
+  function onLoadFunctions() {
+    checkForPlaylist();
+    getRecentlyPlayedSong();
+  }
+
+  const checkForPlaylist = async (e) => {
+    //console.log("checkForPlaylist ran successfully.")
+
+    const { data } = await axios.get(
+      "https://api.spotify.com/v1/me/playlists",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 50
+        },
+      }
+    );
+    
+    var playlistNames = [];
+
+    for (var i=0; i<=50; i++)
+    {
+      //playlistNames.push(data.items[i].name)
+      console.log(data.items[i].name);
+    }
+
+    //console.log(playlistNames);
+  }
+
+  /*
+  const createPlaylist = async (e) => {
+    //console.log("checkForPlaylist ran successfully.")
+    userID = currentUsersProfile.id;
+    console.log(userID);
+
+    const { data } = await axios.post(
+      "https://api.spotify.com/v1/users/" + userID + "/playlists",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 1,
+          type: "track",
+        },
+      }
+    );
+  }
+  */
+
   const getRecentlyPlayedSong = async (e) => {
     const { data } = await axios.get(
       "https://api.spotify.com/v1/me/player/recently-played",
@@ -94,6 +147,7 @@ function App() {
     //console.log(recentlyPlayedSong);
     //console.log(rpsSongID);
     //console.log(rpsArtistID);
+    //console.log("getRecentlyPlayedSong ran successfully.")
   };
 
   const getRpsArtistGenre = async (e) => {
@@ -178,7 +232,7 @@ function App() {
         ) : (
           <>
             <Container id="main__container">
-              <div onLoad={getRecentlyPlayedSong}>
+              <div onLoad={onLoadFunctions}>
                 {currentUsersProfile && (
                   <div>
                     <p id="welcome__saying">
