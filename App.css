@@ -1,16 +1,29 @@
 #main__container {
   width: 100%;
-  max-width: 30%;
-  margin: 20px auto;
+  /* max-width: 30%; */
+  margin: 100px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: flex-start;
+}
+
+#user__card {
+  /* box-sizing: border-box; */
+  margin-right: 30px;
+}
+
+#song__list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 60px;
 }
 
 #img__container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 250px;
+  height: 250px;
 }
 
 #welcome__saying {
@@ -18,12 +31,13 @@
   font-size: 2rem;
 }
 
-#btn__like {
+.btn__like {
   position: absolute;
-  right: 34.5%;
-  margin-top: 15%;
+  translate: 110px;
   font-size: 1.3rem;
+  border-color: black !important;
   border-radius: 1.98rem 0 1.6rem 0;
+  box-shadow: 3px 3px 1px 1px rgba(255, 0, 242, 0.2);
 }
 
 #login__button {
@@ -35,4 +49,8 @@
   color: white;
   padding: 10px;
   border-radius: 1.6rem;
+}
+
+.active {
+  background-color: rgb(59, 212, 59) !important;
 }
