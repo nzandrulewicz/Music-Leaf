@@ -26,7 +26,7 @@ function App() {
   const [token, setToken] = useState("");
   const [currentUsersProfile, setCurrentUsersProfile] = useState(null);
   const [recommendedSongs, setRecommendedSongs] = useState([]);
-  const [backgroundColor, setBackgroundColor] = useState("#ff4");
+  const [backgroundColor, setBackgroundColor] = useState("#ffff");
 
   var recentlyPlayedSong = null;
 
@@ -193,39 +193,47 @@ function App() {
               <div onLoad={getRecentlyPlayedSong} id="user__card">
                 {currentUsersProfile && (
                   <div>
-                    <p id="welcome__saying">
+                    {/* <p id="welcome__saying">
                       Welcome, {currentUsersProfile.display_name}
-                    </p>
+                    </p> */}
                     {currentUsersProfile.images.length &&
                       currentUsersProfile.images[0].url && (
                         <img
-                          className="p-1 add-space shadow p-3 mb-5 bg-white rounded"
+                          className="p-1 add-space shadow p-3 mb-5 bg-white rounded-circle"
                           src={currentUsersProfile.images[0].url}
                           alt="Avatar"
+                          id="user__img"
                         />
                       )}
                   </div>
                 )}
-                <p>
-                  Last played song: <span id="recentlyPlayedSong"></span>
+                <p id="last__played">
+                  LAST PLAYED SONG: <span id="recentlyPlayedSong"></span>
                 </p>
 
                 <Button
-                  variant="success"
-                  size="lg"
-                  className="shadow p-2 mb-5"
+                  className="p-2"
                   onClick={getRecommendedSongs}
+                  id="recommend__btn"
                 >
-                  Get Recommended Songs
+                  Recommended
+                </Button>
+                <Button
+                  className="p-2"
+                  onClick={getRecommendedSongs}
+                  id="profile__btn"
+                >
+                  Profile
+                </Button>
+                <Button
+                  className="p-2"
+                  onClick={getRecommendedSongs}
+                  id="discover__btn"
+                >
+                  Discover
                 </Button>
 
-                <br></br>
-
-                <Button
-                  variant="danger"
-                  className="shadow p-2 mb-5"
-                  onClick={logout}
-                >
+                <Button className="p-2" onClick={logout} id="logout__btn">
                   Logout
                 </Button>
               </div>
