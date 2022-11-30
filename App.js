@@ -1,4 +1,3 @@
-import React from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
@@ -11,21 +10,21 @@ import {
   Row,
   Card,
 } from "react-bootstrap";
-import $ from "jquery";
 
-var scopes = ["user-top-read", "user-read-recently-played"];
+var scopes = ["user-top-read", "user-read-recently-played", "playlist-modify-private", "playlist-modify-public"];
 var RPS = {};
+var userID;
+var playlistID;
 
 function App() {
   const CLIENT_ID = "716cc26765604e6c98f418c9e9ba23c3";
-  const REDIRECT_URI = "http://localhost:3000/callback"; //"https://musicleaf.herokuapp.com/callback"
+  const REDIRECT_URI = "https://localhost:3000/callback"; //"https://musicleaf.herokuapp.com/callback";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
 
   const [token, setToken] = useState("");
   const [currentUsersProfile, setCurrentUsersProfile] = useState(null);
   const [recommendedSongs, setRecommendedSongs] = useState([]);
-  const [backgroundColor, setBackgroundColor] = useState("#ffff");
 
   var recentlyPlayedSong = null;
 
@@ -69,6 +68,69 @@ function App() {
     fetchCurrentUsersProfile();
   }, []);
 
+  function onLoadFunctions() {
+    getRecentlyPlayedSong();
+    checkForPlaylist();
+  }
+
+  const checkForPlaylist = async (e) => {
+    //console.log("checkForPlaylist ran successfully.")
+
+    const { data } = await axios.get(
+      "https://api.spotify.com/v1/me/playlists",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: {
+          limit: 50
+        },
+      }
+    );
+
+    var playlistNames = [];
+    for (var i=0; i<=50; i++)
+    {
+      playlistNames.push(data.items[i].name);
+
+      if (data.items[i+1] == null)
+      {
+        break;
+      }
+    }
+
+    if (!playlistNames.includes("Music Leaf Songs"))
+    {
+      //console.log("Music Leaf Songs playlist does not exist.");
+      createPlaylist();
+    }
+    else
+    {
+      var index = playlistNames.indexOf("Music Leaf Songs");
+      playlistID = data.items[index].id;
+      console.log("Music Leaf Songs playlist has been created.")
+    }
+    //console.log(playlistNames);
+  }
+
+  const createPlaylist = async (e) => {
+    //console.log("createPlaylist ran successfully.")
+    userID = currentUsersProfile.id;
+
+    const { data } = await axios.post(
+      "https://api.spotify.com/v1/users/" + userID + "/playlists",
+      {
+        name: "Music Leaf Songs",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+    });
+
+    checkForPlaylist();
+  }
+
   const getRecentlyPlayedSong = async (e) => {
     const { data } = await axios.get(
       "https://api.spotify.com/v1/me/player/recently-played",
@@ -79,7 +141,7 @@ function App() {
         params: {
           limit: 1,
           type: "track",
-        },
+        }
       }
     );
 
@@ -96,6 +158,7 @@ function App() {
     //console.log(recentlyPlayedSong);
     //console.log(rpsSongID);
     //console.log(rpsArtistID);
+    //console.log("getRecentlyPlayedSong ran successfully.")
   };
 
   const getRpsArtistGenre = async (e) => {
@@ -121,7 +184,7 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          limit: 12,
+          limit: 10,
           seed_tracks: RPS.rpsSongID,
           seed_artists: RPS.rpsArtistID,
           seed_genres: RPS.rpsArtistGenre,
@@ -134,10 +197,6 @@ function App() {
     console.log(RPS.rpsArtistGenre);
     setRecommendedSongs(data.tracks);
   };
-
-  $(".btn__like").click(function () {
-    $(this).addClass("active");
-  });
 
   const renderRecommendedSongs = () => {
     return recommendedSongs.map((recommendedSong) => (
@@ -153,12 +212,7 @@ function App() {
           <div>No Image</div>
         )}
         <br></br>
-        <Button
-          variant="info"
-          className="btn__like"
-          id="btn__like"
-          style={{ backgroundColor: backgroundColor }}
-        >
+        <Button variant="success" id="btn__like" className=" p-3 shadow" onClick={() => addSongToPlaylist(recommendedSong)}>
           +
         </Button>
         <p>
@@ -168,6 +222,24 @@ function App() {
       </div>
     ));
   };
+
+  async function addSongToPlaylist(recommendedSong) {
+    var songURI = recommendedSong.uri;
+
+    console.log(songURI);
+    console.log(playlistID);
+
+    await axios.post(
+      "https://api.spotify.com/v1/playlists/" + playlistID + "/tracks",
+      {
+        uris: [songURI],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+    });
+  }
 
   const logout = () => {
     setToken("");
@@ -189,55 +261,50 @@ function App() {
         ) : (
           <>
             <Container id="main__container">
-              <div onLoad={getRecentlyPlayedSong} id="user__card">
+              <div onLoad={onLoadFunctions}>
                 {currentUsersProfile && (
                   <div>
-                    {/* <p id="welcome__saying">
+                    <p id="welcome__saying">
                       Welcome, {currentUsersProfile.display_name}
-                    </p> */}
+                    </p>
                     {currentUsersProfile.images.length &&
                       currentUsersProfile.images[0].url && (
                         <img
-                          className="p-1 add-space shadow p-3 mb-5 bg-white rounded-circle"
+                          className="p-1 add-space shadow p-3 mb-5 bg-white rounded"
                           src={currentUsersProfile.images[0].url}
                           alt="Avatar"
-                          id="user__img"
                         />
                       )}
                   </div>
                 )}
-                <p id="last__played">
-                  LAST PLAYED SONG: <span id="recentlyPlayedSong"></span>
-                </p>
-
-                <Button
-                  className="p-2"
-                  onClick={getRecommendedSongs}
-                  id="recommend__btn"
-                >
-                  Recommended
-                </Button>
-                <Button
-                  className="p-2"
-                  onClick={getRecommendedSongs}
-                  id="profile__btn"
-                >
-                  Profile
-                </Button>
-                <Button
-                  className="p-2"
-                  onClick={getRecommendedSongs}
-                  id="discover__btn"
-                >
-                  Discover
-                </Button>
-
-                <Button className="p-2" onClick={logout} id="logout__btn">
-                  Logout
-                </Button>
               </div>
 
-              <div id="song__list">{renderRecommendedSongs()}</div>
+              <p>
+                Last played song: <span id="recentlyPlayedSong"></span>
+              </p>
+
+              <Button
+                variant="success"
+                size="lg"
+                className="shadow p-2 mb-5"
+                onClick={getRecommendedSongs}
+              >
+                Get Recommended Songs
+              </Button>
+
+              <br></br>
+
+              <Button
+                variant="danger"
+                className="shadow p-2 mb-5"
+                onClick={logout}
+              >
+                Logout
+              </Button>
+
+              <br></br>
+
+              {renderRecommendedSongs()}
             </Container>
           </>
         )}
