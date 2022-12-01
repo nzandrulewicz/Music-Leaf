@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
+import SpotifyWebApi from "spotify-web-api-js";
 import axios from "axios";
 import {
   Container,
@@ -20,14 +21,13 @@ var scopes = [
   "playlist-modify-private",
   "playlist-modify-public",
 ];
-
 var RPS = {};
 var userID;
 var playlistID;
 
 function App() {
-  const CLIENT_ID = "716cc26765604e6c98f418c9e9ba23c3";
-  const REDIRECT_URI = "http://localhost:3000/callback"; // "https://musicleaf.herokuapp.com/callback"; 
+  const CLIENT_ID = "03df3b9ad5094f7ba2904002d7c94924";
+  const REDIRECT_URI = "http://localhost:3000/";
   const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
   const RESPONSE_TYPE = "token";
 
@@ -190,7 +190,7 @@ function App() {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          limit: 12,
+          limit: 10,
           seed_tracks: RPS.rpsSongID,
           seed_artists: RPS.rpsArtistID,
           seed_genres: RPS.rpsArtistGenre,
@@ -282,14 +282,63 @@ function App() {
     <div className="App">
       <header className="App-header">
         {!token ? (
-          <a
-            href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join(
-              "%20"
-            )}&response_type=${RESPONSE_TYPE}`}
-            id="login__button"
-          >
-            Login to Spotify
-          </a>
+          <div id="login__div">
+            <div id="home__nav">
+              <div id="title__name__two">
+                Music
+                <img src={require("./leaf.png")} id="logo__img" />
+              </div>
+              <div>
+                <ul>
+                  <li>
+                    <a href="">Home</a>
+                  </li>
+                  <li>
+                    <a href="">Pricing</a>
+                  </li>
+                  <li>
+                    <a href="">About</a>
+                  </li>
+                  <li>
+                    <a id="contact__btn" href="">
+                      Contact
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <img src={require("./user.png")} id="icon__img__two" />
+                <a
+                  href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join(
+                    "%20"
+                  )}&response_type=${RESPONSE_TYPE}`}
+                  id="login__button__two"
+                >
+                  Login to Spotify
+                </a>
+              </div>
+            </div>
+
+            <div id="landing__container">
+              <div id="main__welcome">
+                <div>Welcome to MusicLeaf!</div>
+                <div>Welcome to MusicLeaf!</div>
+                <div>Welcome to MusicLeaf!</div>
+                <div>Welcome to MusicLeaf!</div>
+              </div>
+              <a
+                href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scopes.join(
+                  "%20"
+                )}&response_type=${RESPONSE_TYPE}`}
+                id="login__button"
+              >
+                Login to Spotify
+              </a>
+              <a href="" id="seemore__btn">
+                see more
+              </a>
+            </div>
+          </div>
         ) : (
           <>
             <div id="overall">
@@ -302,8 +351,8 @@ function App() {
                 </div>
 
                 <div id="title__name">
+                  Music
                   <img src={require("./leaf.png")} id="logo__img" />
-                  Music Leaf
                 </div>
               </div>
               <Container id="main__container">
@@ -331,10 +380,10 @@ function App() {
                   <Button
                     className="p-2"
                     onClick={getRecommendedSongs}
-                    id="site__btn"
+                    id="site__btn__rec"
                   >
                     <img src={require("./heart.png")} id="icon__img" />
-                    Recommended
+                    Refresh recommended
                   </Button>
                   <Button
                     className="p-2"
